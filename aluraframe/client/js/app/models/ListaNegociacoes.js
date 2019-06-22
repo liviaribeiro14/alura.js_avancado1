@@ -7,11 +7,17 @@ class ListaNegociacoes{
         this._negociacoes.push(negociacao);
     }
 
+    esvazia(){
+        this._negociacoes = [];
+    }
+
     get negociacoes(){
         return [].concat(this._negociacoes);
     }
 
-    esvazia(){
-        this._negociacoes = [];
+    get volumeTotal(){
+        return this._negociacoes.reduce((total, negociacao) => total + negociacao.volume, 0.0);
     }
+
+
 }
