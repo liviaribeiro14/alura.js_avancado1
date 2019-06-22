@@ -5,12 +5,20 @@ class NegociacaoController{
         this.inputData = $('#data');
         this.inputQuantidade = $('#quantidade');
         this.inputValor = $('#valor');
-        this.listaNegociacoes = new ListaNegociacoes();
 
         this.negociacoesView = new NegociacoesView($('#negociacoesView'));
-        this.negociacoesView.update(this.listaNegociacoes);
 
-        this.mensagem = new Mensagem();
+        this.listaNegociacoes = ProxyFactory.create(
+            new ListaNegociacoes(), 
+            ['adiciona', 'esvazia'], 
+            model => this.negociacoesView.update(model)
+        );
+
+        this.mensagem = ProxyFactory.create(
+            new Mensagem(),
+            ['texto'],
+            model => this.mensagemView.update(model)
+        );
         this.mensagemView = new MensagemView($('#mensagemView'));
         this.mensagemView.update(this.mensagem);
     }
@@ -21,12 +29,15 @@ class NegociacaoController{
         this.listaNegociacoes.adiciona(this._criaNegociacao());
         this._limpaFormulario();
 
-        this.negociacoesView.update(this.listaNegociacoes);
-
         this.mensagem.texto = "Negociação incluída";
-        this.mensagemView.update(this.mensagem);
+    }
 
-        //console.log(this.listaNegociacoes);
+    apagaLista(event){
+        event.preventDefault();
+
+        this.listaNegociacoes.esvazia();
+
+        this.mensagem.texto = "Negociações removidas";
     }
 
     _criaNegociacao(){ 
