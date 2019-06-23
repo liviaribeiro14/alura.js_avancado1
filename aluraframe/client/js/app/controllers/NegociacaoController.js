@@ -27,37 +27,24 @@ class NegociacaoController{
     }
 
     importarNegociacoes(){
-        /* let xhr = new XMLHttpRequest();
-
-        xhr.open('GET', 'negociacoes/semana');
-
-        xhr.onreadystatechange = () => {
-            if(xhr.readyState == 4){
-                if(xhr.status == 200){
-                    JSON.parse(xhr.responseText)
-                    .map(objeto => new Negociacao(new Date(objeto.data), objeto.quantidade, objeto.valor))
-                    .forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
-
-                    this._mensagem.texto = 'Negociações carregadas com sucesso.';
-                }else{
-                    console.log(xhr.responseText);
-                    this._mensagem.texto = 'Negociações não foram carregadas.';
-                }
-            }
-        };
-
-        xhr.send(); */
         let negociacaoService = new NegociacaoService();
-        
-        negociacaoService.obterNegociacoesDaSemana((err, negociacoes)=>{
-            if(err){
-                this._mensagem.texto = err;
-                return;
-            }
+
+        Promise.all(
+            [negociacaoService.obterNegociacoesDaSemana(),
+            negociacaoService.obterNegociacoesDaSemanaAnterior()])
+            .then(negociacoes => {
+                negociacoes
+                .reduce((arrayAchatado, array)=>arrayAchatado.concat(array), [])
+                .forEach(negociacao => this._listaNegociacoes.adiciona(negociacao))
+                this._mensagem.texto = 'Negociações carregadas com sucesso.';
+            })
+            .catch(err => this._mensagem.texto = err);
+        /* negociacaoService.obterNegociacoesDaSemana()
+        .then(negociacoes => {
             negociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao))
             this._mensagem.texto = 'Negociações carregadas com sucesso.';
-        }
-        );
+        })
+        .catch(err => this._mensagem.texto = err); */
     }
 
     apagaLista(event){

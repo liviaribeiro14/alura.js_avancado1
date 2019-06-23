@@ -1,21 +1,29 @@
 class NegociacaoService{
-    obterNegociacoesDaSemana(cb){
-        let xhr = new XMLHttpRequest();
+    constructor(){
+        this._http = new HttpService();
+    }
 
-        xhr.open('GET', 'negociacoes/semana');
+    obterNegociacoesDaSemana(){
+        return this._http
+        .get('negociacoes/semana')
+        .then(negociacoes => {
+            return negociacoes.map(objeto => new Negociacao(new Date(objeto.data), objeto.quantidade, objeto.valor));
+        })                
+        .catch(erro => {
+            console.log(erro);
+            throw new Error('Negociações da semana não foram carregadas.');
+        });
+    }
 
-        xhr.onreadystatechange = () => {
-            if(xhr.readyState == 4){
-                if(xhr.status == 200){
-                    cb(null,JSON.parse(xhr.responseText)
-                    .map(objeto => new Negociacao(new Date(objeto.data), objeto.quantidade, objeto.valor)));
-                }else{
-                    console.log(xhr.responseText);
-                    cb('Negociações não foram carregadas.', null);
-                }
-            }
-        };
-
-        xhr.send();
+    obterNegociacoesDaSemanaAnterior(){        
+        return this._http
+        .get('negociacoes/anterior')
+        .then(negociacoes => {
+            return negociacoes.map(objeto => new Negociacao(new Date(objeto.data), objeto.quantidade, objeto.valor))
+        })
+        .catch(erro => {
+            console.log(erro);
+            throw new Error('Negociações da semana anterior não foram carregadas.');
+        });
     }
 }
